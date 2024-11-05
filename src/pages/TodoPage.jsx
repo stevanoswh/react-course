@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TodoForm from '../components/TodoForm';
 import '../App.css';
 import TodoList from '../components/TodoList';
-// import ErrorMessage from '../components/ErrorMessage';
+import ErrorMessage from '../components/ErrorMessage';
 
 export default function TodoPage() {
   const [todos, setTodos] = useState([]);
@@ -30,7 +30,7 @@ export default function TodoPage() {
   return (
     <div className="container">
       <h1 className="header">Todo App</h1>
-      {/* <ErrorMessage message={error} /> */}
+      <ErrorMessage message={error} />
       <TodoForm addTodo={handleAddTodo} />
       <TodoList todos={todos} toggleTodo={handleToggleTodo} deleteTodo={handleDeleteTodo} />
     </div>
