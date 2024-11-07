@@ -1,57 +1,41 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/TodoPage.jsx
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import TodoForm from '../components/TodoForm';
-import '../App.css';
 import TodoList from '../components/TodoList';
 import ErrorMessage from '../components/ErrorMessage';
-import { fetchTodos, addTodo, toggleTodo, deleteTodo } from '../services/todoService';
+import {
+  fetchTodosThunk,
+  addTodoThunk,
+  toggleTodoThunk,
+  deleteTodoThunk,
+} from '../redux/slices/todoSlice';
 
 export default function TodoPage() {
-  const [todos, setTodos] = useState([]);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { items: todos, loading, error } = useSelector((state) => state.todos);
 
   useEffect(() => {
-    const loadTodos = async () => {
-      try {
-        const data = await fetchTodos();
-        setTodos(data);
-      } catch (err) {
-        setError('Failed to fetch todos. Please try again later.');
-      }
-    };
-    loadTodos();
-  }, []);
+    dispatch(fetchTodosThunk());
+  }, [dispatch]);
 
-  const handleAddTodo = async (title) => {
-    try {
-      const newTodo = await addTodo(title);
-      setTodos([...todos, newTodo]);
-    } catch (err) {
-      setError('Failed to add todo. Please try again.');
-    }
+  const handleAddTodo = (title) => {
+    dispatch(addTodoThunk(title));
   };
 
-  const handleToggleTodo = async (id) => {
-    try {
-      const todoToUpdate = todos.find(todo => todo.id === id);
-      const updatedTodo = await toggleTodo(id, !todoToUpdate.completed);
-      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)));
-    } catch (err) {
-      setError('Failed to update todo. Please try again.');
-    }
+  const handleToggleTodo = (id) => {
+    const todoToUpdate = todos.find((todo) => todo.id === id);
+    dispatch(toggleTodoThunk({ id, completed: !todoToUpdate.completed }));
   };
 
-  const handleDeleteTodo = async (id) => {
-    try {
-      await deleteTodo(id);
-      setTodos(todos.filter(todo => todo.id !== id));
-    } catch (err) {
-      setError('Failed to delete todo. Please try again.');
-    }
+  const handleDeleteTodo = (id) => {
+    dispatch(deleteTodoThunk(id));
   };
 
   return (
     <div className="container">
       <h1 className="header">Todo App</h1>
+      {loading && <p>Loading...</p>}
       <ErrorMessage message={error} />
       <TodoForm addTodo={handleAddTodo} />
       <TodoList todos={todos} toggleTodo={handleToggleTodo} deleteTodo={handleDeleteTodo} />
